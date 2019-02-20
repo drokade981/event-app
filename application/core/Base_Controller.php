@@ -20,12 +20,13 @@ class Base_Controller extends CI_Controller {
     }
 
     public function flashMsg($class, $msg) {
-        $msg1 = '<div class="alert alert-' . $class . ' alert-dismissible" role="alert">' . $msg . '
+        $msg1 = '<div class="alert-remove alert alert-' . $class . ' alert-dismissible" role="alert">' . $msg . '
 		  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
 		    <span aria-hidden="true">&times;</span>
 		  </button>
 		</div>
             <div class="clearfix"></div>';
+        
         $this->session->set_flashdata('msg', $msg1);
         return true;
     }
@@ -101,6 +102,21 @@ class Base_Controller extends CI_Controller {
             throw new Exception("no cryptographically secure random function available");
         }
         echo substr(bin2hex($bytes), 0, $length);
+    }
+    
+    function createThumb() {
+        
+        require APPPATH.'libraries/ffmpeg/src/FFMpeg/FFMpeg.php';
+        
+        $sec = 1;
+        $movie = base_url('assests/uploads/gallery/08f81b6fcd0c37b4418e8b553da76869.mp4');
+        $thumbnail = 'assests/uploads/thumbnail.png';
+
+        $ffmpeg = FFMpeg\FFMpeg::create();
+        $video = $ffmpeg->open($movie);
+        $frame = $video->frame(FFMpeg\Coordinate\TimeCode::fromSeconds($sec));
+        $frame->save($thumbnail);
+        echo '<img src="'.$thumbnail.'">';
     }
     
 }
