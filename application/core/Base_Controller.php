@@ -119,4 +119,92 @@ class Base_Controller extends CI_Controller {
         echo '<img src="'.$thumbnail.'">';
     }
     
+    public function curl($headers,$fields,$url){
+        
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt ($ch, CURLOPT_SSL_VERIFYHOST, 0);  
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($fields));
+        curl_setopt($ch, CURLOPT_HEADER, FALSE);
+
+        $result = curl_exec($ch);           
+        if ($result == FALSE) {
+                return false;
+            die('Curl failed: ' . curl_error($ch));
+        }
+        curl_close($ch); 
+            //  echo"<pre>";
+            //  print_r($result);
+            // die();
+        return $result;
+    }
+
+    function Apn($deviceToken,$message){  
+
+        $fields = array
+        (
+            'to'    => $deviceToken,
+            'priority' => 'high',
+            'notification' => array('body'=> $message['message'],'title'=> $message['title'],'sound' => 'chime.aiff'),
+            'data'  => $message
+        );
+
+        $headers = array
+        (
+            'Authorization: key=API_ACCESS_KEY_ios',
+            'Content-Type: application/json'
+        );
+        $url = 'https://fcm.googleapis.com/fcm/send';
+
+        $this->curl($headers,$fields,$url);
+    }
+
+    public function send_notification($tokens, $message)  // fcm
+    {           
+        $fields = array(
+                'registration_ids' => $tokens,
+                'notification' => $message
+            );  
+
+        $headers = array(
+            'Authorization:key = AAAAibOCUAY:APA91bG6TEZcH6FinqLE035dt21UOjUmTQuRXFg3pA9CFWe1B07g4PMHFuO0qVV-wPjGFx0aTdmBqPtDrKyElUbZ3OIVUiK3qUmcROKBhHLu3EU6zahpWfw2UjT9YlPgwKuLewolKnCm',            
+            'Content-Type: application/json'
+        );
+        $url = 'https://fcm.googleapis.com/fcm/send';
+
+        $this->curl($headers,$fields,$url);
+    }
+    
+
+    function sendpushnotification($token,$message) // one signal
+    {
+        $content = array(
+        "en" => $message['message']
+        );
+
+        $headings= array(
+        "en" => $message['title']
+        );
+
+        $fields = array(
+        'app_id' => "8b253122-3b51-434d-87de-9164baf6eccb",
+        'include_player_ids' => $token,
+        'data' => array("alert" =>$message['message'],"flag" =>'app',"title" =>$message['title']),
+        'contents' => $content,
+        'headings' => $headings,
+        );
+
+        $headers = array(
+                'Content-Type: application/json; charset=utf-8',
+                'Authorization: Basic MWFiN2Y4ZWItMzY2Ny00MGQ5LTg1OTQtMmE1ZDc4YzhkMjdh');
+       
+        $url = "https://onesignal.com/api/v1/notifications";
+
+        $this->curl($headers,$fields,$url);
+    }
+
 }
