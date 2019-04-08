@@ -333,4 +333,13 @@ class Common extends CI_Model {
         }
     }
     //---------------- custom functions end -----------------//
+    public function oneToManay($table1,$table2,$options)
+    {
+        // eg: $options = ['where1' => array('id'=>1),'where2'=> array('id'=>1),$field_match=>'image','field1'=>*,'field2'=>'id,name.image'];
+        $data = $this->getData($table1,$options['where1'],array('single','field'=>$options['field1']??'*'));
+
+        $data1 = $this->getData($table2,$options['where2'],array('field'=>$options['field2']??'*')); echo last_query();
+        $data[$options['field_match']] = $data1;
+        return $data;
+    }
 }
