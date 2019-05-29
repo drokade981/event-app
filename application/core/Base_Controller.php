@@ -92,6 +92,17 @@ class Base_Controller extends CI_Controller {
         return md5(microtime().$rand);
     }
     
+	public function generateOTP($length=4)
+	    {
+		$seed = str_split('0123456789'); // and any other characters
+		shuffle($seed); // probably optional since array_is randomized;
+		$rand = '';
+		foreach (array_rand($seed, $length) as $k){
+		    $rand .= $seed[$k]; 
+		} 
+		return $rand;
+	    }
+	
     public function generateCode($length=8)
     {
         if (function_exists("random_bytes")) {
