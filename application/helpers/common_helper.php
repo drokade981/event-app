@@ -71,6 +71,11 @@ function langMsg($msg){
     $CI->lang->load('user');
     return $CI->lang->line($msg);
 }
+function langMsgs($msg){
+    $CI = & get_instance();
+    $CI->lang->load('users');
+    return $CI->lang->line($msg);
+}
 
 function apiMsg($msg){
     $CI = & get_instance();
@@ -88,14 +93,14 @@ function removeKey($validation_name,$values = array()) {
         foreach($values as $value){
             foreach($array as $subKey => $subArray){
                 if($subArray['field'] == $value){
-                     unset($array[$subKey]);
+                    unset($array[$subKey]);
                 }
             }   
         }        
     }else{
         foreach($array as $subKey => $subArray){
             if($subArray['field'] == $values){
-                 unset($array[$subKey]);
+                unset($array[$subKey]);
             }
        }       
     } 
@@ -119,26 +124,19 @@ function generateRandomString($length = '8') {
     return substr(str_shuffle(str_repeat($characters, ceil($length/strlen($characters)) )),1,$length);   
 }
 
-    function generateToken($length=8)
-    {
-        $seed = str_split('abcdefghijklmnopqrstuvwxyz'
-         .'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-         .'0123456789'); // and any other characters
-        shuffle($seed); // probably optional since array_is randomized;
-        $rand = '';
-        foreach (array_rand($seed, $length) as $k){
-                $rand .= $seed[$k];	
-        } 
+  function generateToken($length=8)
+  {
+      $seed = str_split('abcdefghijklmnopqrstuvwxyz'
+       .'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+       .'0123456789'); // and any other characters
+      shuffle($seed); // probably optional since array_is randomized;
+      $rand = '';
+      foreach (array_rand($seed, $length) as $k){
+              $rand .= $seed[$k];	
+      } 
 
-        return md5(microtime().$rand);
-    }
-function base64Img($path){
-    $type = pathinfo($path, PATHINFO_EXTENSION);
-    $data = file_get_contents($path);
-    $base64 = 'data:image/' . $type . ';base64,' . base64_encode($data);
-    // Display the output 
-    return $base64; 
-}
+      return md5(microtime().$rand);
+  }
 
 
 function removeDir($path) {
@@ -153,19 +151,303 @@ function removeDir($path) {
     return false;            
 }
 
-function social_name($id) {
+
+function status($id) {
     switch ($id) {
-        case 1:
-            return 'Facebook';
+        case 0:
+            return 'Publish';
             break;
         case 1:
-            return 'Instagram';
+            return 'Draft';
+            break;        
+    }
+}
+
+function is_working($id) {
+    switch ($id) {
+        case 0:
+            return 'No';
             break;
         case 1:
-            return 'Twitter';
+            return 'Yes';
+            break;        
+    }
+}
+
+function plan_type($id) {
+    switch ($id) {
+        case 0:
+            return 'used';
             break;
         case 1:
-            return 'LinkedIn';
+            return 'new';
+            break;        
+    }
+}
+
+function type($id) {
+    switch ($id) {
+        case 0:
+            return 'Percentage';
+            break;
+        case 1:
+            return 'Fixed';
+            break;        
+    }
+}
+
+function allow_edit($id) {
+    switch ($id) {
+        case 0:
+            return 'Not Allowed';
+            break;
+        case 1:
+            return 'Allowed';
+            break;        
+    }
+}
+
+function userStatus($id) {
+    switch ($id) {
+        case 0:
+            return 'Active';
+            break;
+        case 1:
+            return 'Blocked';
+            break;        
+    }
+}
+
+function machine_type($id)
+{
+  switch ($id) {
+      case 0:
+          return 'new';
+          break;
+      case 1:
+          return 'used';
+          break;        
+  }
+}
+
+function position($id)
+{
+  switch ($id) {
+      case 1:
+          return 'top';
+          break;
+      case 2:
+          return 'after 10 ads';
+          break;  
+      case 3:
+          return 'after 20 ads';
+          break;       
+  }
+}
+
+function ownership($id)
+{
+ switch ($id) {
+      case 0:
+          return 'New';
+          break;
+      case 1:
+          return 'First Hand';
+          break;
+      case 2:
+          return 'Second Hand';
+          break;        
+  }
+}
+
+function machine_status($id)
+{
+ switch ($id) {
+      case 0:
+          return 'draft';
+          break;
+      case 1:
+          return 'approve';
+          break;
+      case 2:
+          return 'rejected';
+          break;
+      case 3:
+          return 'expired';
+          break;
+      case 4:
+          return 'pending';
+          break; 
+      case 5:
+          return 'expiring soon';
+          break;         
+  }
+}
+
+function getDateRange($date1,$date2,$format = 'Y-m-d') {
+    $period = new DatePeriod(
+        new DateTime(date($format, strtotime($date1))),
+        new DateInterval('P1D'),
+        new DateTime(date($format, strtotime($date2)))
+   );
+    
+    $dates = array(); 
+      
+    // Variable that store the date interval 
+    // of period 1 day 
+//    $interval = new DateInterval('P1D'); 
+//  
+//    $realEnd = new DateTime($date2); 
+//    $realEnd->add($interval); 
+//  
+//    $period = new DatePeriod(new DateTime($date1), $interval, $realEnd);
+    
+    foreach($period as $date) {                  
+        $dates[] = $date->format($format);  
+    }
+    $dates[] = date($format, strtotime($date2)); // for adding given date
+  
+    return $dates; 
+}
+
+function dd($data)
+{
+   echo "<pre>"; print_r($data); die;
+}
+
+function last_query()
+{
+  $CI = & get_instance();
+  echo $CI->db->last_query();
+}
+
+function show_validation_error()
+{
+  if(validation_errors()){
+    $error = validation_errors();
+    $error=str_ireplace('<p>','',$error);
+    $error=str_ireplace('</p>','<br>',$error); 
+    $msg = '<div class="alert-remove alert alert-danger alert-dismissible" role="alert"><div class="pull-left">' . $error . '</div>
+      <div>
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+      </div>
+      <div class="clearfix"></div>
+    </div>
+        <div class="clearfix"></div>';
+      return $msg;
+  }else{
+    return false;
+  }
+}
+
+function quotePriceMsg($name,$amount,$title="machine ad")
+{
+  $msg = '<strong>'.$name.'</strong> has quoted <strong>₹ '.$amount.'</strong> for your '.$title.'.';  
+  return $msg;
+}
+
+
+function numberTowords($number) {
+    $hyphen      = '-';
+    $conjunction = ' and ';
+    $separator   = ', ';
+    $negative    = 'negative ';
+    $decimal     = ' point ';
+    $dictionary  = array(
+        0                   => 'zero',
+        1                   => 'one',
+        2                   => 'two',
+        3                   => 'three',
+        4                   => 'four',
+        5                   => 'five',
+        6                   => 'six',
+        7                   => 'seven',
+        8                   => 'eight',
+        9                   => 'nine',
+        10                  => 'ten',
+        11                  => 'eleven',
+        12                  => 'twelve',
+        13                  => 'thirteen',
+        14                  => 'fourteen',
+        15                  => 'fifteen',
+        16                  => 'sixteen',
+        17                  => 'seventeen',
+        18                  => 'eighteen',
+        19                  => 'nineteen',
+        20                  => 'twenty',
+        30                  => 'thirty',
+        40                  => 'fourty',
+        50                  => 'fifty',
+        60                  => 'sixty',
+        70                  => 'seventy',
+        80                  => 'eighty',
+        90                  => 'ninety',
+        100                 => 'hundred',
+        1000                => 'thousand',
+        1000000             => 'million',
+        1000000000          => 'billion',
+        1000000000000       => 'trillion',
+        1000000000000000    => 'quadrillion',
+        1000000000000000000 => 'quintillion'
+    );
+    if (!is_numeric($number)) {
+        return false;
+    }
+    if (($number >= 0 && (int) $number < 0) || (int) $number < 0 - PHP_INT_MAX) {
+        // overflow
+        trigger_error(
+            'convert_number_to_words only accepts numbers between -' . PHP_INT_MAX . ' and ' . PHP_INT_MAX,
+            E_USER_WARNING
+        );
+        return false;
+    }
+    if ($number < 0) {
+        return $negative . numberTowords(abs($number));
+    }
+    $string = $fraction = null;
+    if (strpos($number, '.') !== false) {
+        list($number, $fraction) = explode('.', $number);
+    }
+    switch (true) {
+        case $number < 21:
+            $string = $dictionary[$number];
+            break;
+        case $number < 100:
+            $tens   = ((int) ($number / 10)) * 10;
+            $units  = $number % 10;
+            $string = $dictionary[$tens];
+            if ($units) {
+                $string .= $hyphen . $dictionary[$units];
+            }
+            break;
+        case $number < 1000:
+            $hundreds  = $number / 100;
+            $remainder = $number % 100;
+            $string = $dictionary[$hundreds] . ' ' . $dictionary[100];
+            if ($remainder) {
+                $string .= $conjunction . numberTowords($remainder);
+            }
+            break;
+        default:
+            $baseUnit = pow(1000, floor(log($number, 1000)));
+            $numBaseUnits = (int) ($number / $baseUnit);
+            $remainder = $number % $baseUnit;
+            $string = numberTowords($numBaseUnits) . ' ' . $dictionary[$baseUnit];
+            if ($remainder) {
+                $string .= $remainder < 100 ? $conjunction : $separator;
+                $string .= numberTowords($remainder);
+            }
             break;
     }
+    if (null !== $fraction && is_numeric($fraction)) {
+        $string .= $decimal;
+        $words = array();
+        foreach (str_split((string) $fraction) as $number) {
+            $words[] = $dictionary[$number];
+        }
+        $string .= implode(' ', $words);
+    }
+    return $string;
 }
