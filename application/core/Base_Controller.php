@@ -231,7 +231,7 @@ class Base_Controller extends CI_Controller {
             );  
 
         $headers = array(
-            'Authorization:key = AAAAibOCUAY:APA91bG6TEZcH6FinqLE035dt21UOjUmTQuRXFg3pA9CFWe1B07g4PMHFuO0qVV-wPjGFx0aTdmBqPtDrKyElUbZ3OIVUiK3qUmcROKBhHLu3EU6zahpWfw2UjT9YlPgwKuLewolKnCm',            
+            'Authorization:key = AAAAibOCUAY:APA91bG6TEZcH6FinqLE035dt21UOjUqPtDrKyElUbZ3OIVUiKLewolKnCm',            
             'Content-Type: application/json'
         );
         $url = 'https://fcm.googleapis.com/fcm/send';
@@ -250,7 +250,7 @@ class Base_Controller extends CI_Controller {
         );
 
         $fields = array(
-            'app_id' => $this->config->item('one_signal_app_id'), //"8b253122-3b51-434d-87de-9164baf6eccb",
+            'app_id' => $this->config->item('one_signal_app_id'),
             'include_player_ids' => $token,
             'data'       => array(
                     "alert" => strip_tags($message['message']),
@@ -268,7 +268,7 @@ class Base_Controller extends CI_Controller {
 
         $headers = array(
                 'Content-Type: application/json; charset=utf-8',
-                'Authorization: Basic Yzk1YzMwNGUtNDQ0Yy00YWQ2LWFjN2ItN2RjMDE3ZTNmY2Zm');
+                'Authorization: Basic Yzk********************2Zm');
        
         $url = "https://onesignal.com/api/v1/notifications";
 
