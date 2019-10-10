@@ -608,5 +608,161 @@ class Provider extends Base_Controller {
 			$this->response(false,"No record Found");
 		}
     }
+	
+	  public function upcomingSection()
+  {  
+    $data["universities"] = $this->common->getData("university_tbl",[],["field"=>"uname,uid"]);
+    $this->adminHtml('Upcoming Course','upcoming-section',$data);
+  }
+
+
+  public function upcoming_section_data()
+  {
+    $where = array('S.start_at >= ' => date("Y-m-d"));
+    $arr = array(1 => "U.uname",0 => "C.cname",2 => "S.name",3 => "S.start_at",4 => "S.end_at",5 => "teacher",6 => "number_of_registered_student");
+
+             
+    $start_date = $_GET["start_date"];
+    $end_date = $_GET["end_date"];
+    $course = $_GET["course"];
+    $university = $_GET["university"];
+
+    if(!empty($start_date))
+    {
+      $where['DATE(S.start_at) > '] = date("Y-m-d",strtotime($start_date));
+    } 
+
+    if(!empty($end_date))
+    {
+      $where['DATE(S.end_at) < '] = date("Y-m-d",strtotime($end_date));
+    }
+
+    if(!empty($course))
+    {
+      $where['course_id'] = $course;
+    } 
+    if(!empty($university))
+    {
+      $where['U.uid']=$university;
+    }
+
+    if(isset($_GET["search"]) && !empty($_GET["search"]["value"]))
+    {
+      $search_value=$_GET["search"]["value"];
+      foreach ($arr as $key => $value) {
+       if($key==0)
+        $this->db->like($value,$search_value,'both');
+       else
+        $this->db->or_like($value,$search_value,'both');
+      }
+    }
+
+    $options = array(
+      "where" => $where,
+      "field" =>"U.uname, C.cname,S.*,SUM(CASE WHEN (SU1.role_id = 3) THEN 1 ELSE 0 END) AS studentcount,SUM(CASE WHEN (SU1.role_id = 4) THEN 1 ELSE 0 END) AS teachercount",
+      "order_by"=>  "U.uname",
+      "limit"   =>  $_GET["length"],
+      "offset"  =>  $_GET["start"], 
+      "group_by" => "S.section_id"     
+    );
+   
+
+    if(isset($_GET["order"][0]["column"]))
+    {
+      $sort_col=$_GET["order"][0]["column"];
+       
+      if(isset($arr[$sort_col]))
+      {
+        $sort_order=$_GET["order"][0]["dir"];
+        $this->db->order_by($arr[$sort_col], $sort_order);
+      }
+    }else{
+      $this->db->order_by($options['order_by']);
+    }
+           
+    if (isset($options['limit']) && isset($options['offset'])) {
+        $this->db->limit($options['limit'], $options['offset']);
+    } elseif (isset($options['limit'])) {
+        $this->db->limit($options['limit']);
+    }
+       
+            
+    $joins = [
+          [
+            "join_table"=>'S',
+            "join_field"=>'course_id',
+            "other_table"=>'course_tbl as C',
+            "other_field"=>'course_code',
+          ],
+          [
+            "join_table"=> 'C',
+            "join_field"=> 'uid',
+            "other_table"=> 'university_tbl as U',
+            "other_field"=> 'uid',            
+          ],
+          [
+            "join_table"=> 'S',
+            "join_field"=> 'section_id',
+            "other_table"=> 'section_users as SU1',
+            "other_field"=> 'section_id',            
+          ],   
+
+        ];
+    $sections=$this->common->multiJoinTable("section as S",$joins,$options);
+   
+    $rows = array();
+    if(!empty($sections)){
+      foreach($sections as $section){
+        $start_date = "";
+        if($section["start_at"] != '0000-00-00 00:00:00'){ 
+          $start_date = date("Y-m-d",strtotime($section["start_at"]));
+        }
+        $end_date = "";
+        if($section["end_at"] != '0000-00-00 00:00:00'){ 
+          $end_date=date("Y-m-d",strtotime($section["end_at"])); 
+        } 
+             
+        // if($section["number_of_registered_student"]==""){ 
+        //   $number_of_registered_student=0;
+        // }
+        // else{ 
+        //   $number_of_registered_student=$section["number_of_registered_student"];
+        // }
+
+        // $number_of_registered_student = '<a href="'.base_url('sections/sectionDetail/'.$section['section_id']).'"><button type="button" class="btn btn-primary btn-sm">View</button></a>';
+
+          $rows[] = array(
+                  $section["cname"],
+                  $section["uname"],
+                  $section["name"],
+                  $start_date,
+                  $end_date,
+                  $section["studentcount"],
+                  $section["teachercount"],
+                  '<a href="'.base_url('sections/sectionDetail/'.$section['section_id']).'" target="_blank"><i class="fa fa-arrow-circle-right font-20"></i></a>'
+              );
+            }
+        }
+
+        $data["data"]=$rows;
+        if(isset($_GET["search"]) && !empty($_GET["search"]["value"]))
+        {
+          $search_value=$_GET["search"]["value"];
+          foreach ($arr as $key => $value) {
+            if($key==0)
+              $this->db->like($value,$search_value,'both');
+            else
+              $this->db->or_like($value,$search_value,'both');
+
+        }
+      }
+      $options = array("where" => $where,"field" =>"U.uname, C.cname,S.*,SUM(CASE WHEN (SU1.role_id = 3) THEN 1 ELSE 0 END) AS studentcount,SUM(CASE WHEN (SU1.role_id = 4) THEN 1 ELSE 0 END) AS teachercount","group_by" => "S.section_id","count");                 
+      $sectioncount = $this->common->multiJoinTable("section as S",$joins,$options);
+      $data["recordsTotal"] = $sectioncount;
+      $data["recordsFiltered"] = $sectioncount;
+
+      echo json_encode($data);
+
+  }
 
 }
